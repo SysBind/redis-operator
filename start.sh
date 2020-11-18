@@ -19,11 +19,11 @@ configure_redis() {
   [ -d conf ] || mkdir conf
   port=$1
   cat <<EOF > conf/redis-$port.conf
-  port $port
-  cluster-enabled yes
-  cluster-config-file conf/nodes-$port.conf
-  appendonly no
-  save ""
+port $port
+cluster-enabled yes
+cluster-config-file conf/nodes-$port.conf
+appendonly no
+save ""
 EOF
   echo "generated redis-$num.conf"
 }
@@ -40,4 +40,5 @@ do
 done
 
 ./bin/redis-cli --cluster create $addresses --cluster-replicas $REPLICAS
+sleep $((SIZE*REPLICAS*2))s
 ./bin/redis-cli --cluster check 127.0.0.1:6001
