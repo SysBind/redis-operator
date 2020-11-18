@@ -1,3 +1,1 @@
-# redis-operator
-
-Redis Cluster Operator
+# Redis Cluster Operator
