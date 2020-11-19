@@ -4,7 +4,7 @@ source config
 source common.sh
 
 get_redis() {
-  [ -f redis-${REDIS_RELEASE}.tar.gz ] || wget https://download.redis.io/releases/redis-${REDIS_RELEASE}.tar.gz
+  [ -f redis-${REDIS_RELEASE}.tar.gz ] || curl -LON https://download.redis.io/releases/redis-${REDIS_RELEASE}.tar.gz
   tar xf redis-${REDIS_RELEASE}.tar.gz
   rm -v redis-${REDIS_RELEASE}.tar.gz
   pushd redis-${REDIS_RELEASE} && make && popd
