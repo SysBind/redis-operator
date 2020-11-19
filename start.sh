@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source config
+source common.sh
 
 get_redis() {
   [ -f redis-${REDIS_RELEASE}.tar.gz ] || wget https://download.redis.io/releases/redis-${REDIS_RELEASE}.tar.gz
@@ -13,21 +14,6 @@ get_redis() {
   rm -rf redis-${REDIS_RELEASE}
 }
 
-# configure_redis port
-## configure single instance
-configure_redis() {
-  [ -d conf ] || mkdir conf
-  port=$1
-  cat <<EOF > conf/redis-$port.conf
-port $port
-cluster-enabled yes
-cluster-config-file conf/nodes-$port.conf
-appendonly no
-save ""
-EOF
-  echo "generated redis-$num.conf"
-}
-
 [ -f bin/redis-server ] || get_redis
 
 addresses=""
@@ -35,10 +21,11 @@ for ((i=1; i<=$(( SIZE*(REPLICAS+1) )); i++));
 do
   port=$((6000+i))
   configure_redis $port
-  ./bin/redis-server conf/redis-$port.conf &
+  run_redis $port
   addresses=$addresses" 127.0.0.1:$port"
 done
 
 ./bin/redis-cli --cluster create $addresses --cluster-replicas $REPLICAS
 sleep $((SIZE*REPLICAS*2))s
 ./bin/redis-cli --cluster check 127.0.0.1:6001
+./bin/redis-cli --cluster rebalance 127.0.0.1:6001 --cluster-use-empty-masters
