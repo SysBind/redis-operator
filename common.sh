@@ -34,7 +34,10 @@ run_redis() {
 shutdown_redis() {
   port=$1
   echo ">>> Shutting Down Redis on $port.."
-  ./bin/redis-cli -p $port "SHUTDOWN"
+  ./bin/redis-cli -p $port "SHUTDOWN" &> /dev/null
+  while ! grep "Redis is now ready to exit, bye bye" logs/redis-$port.log; do
+    sleep 1s
+  done
   rm -v conf/redis-$port.conf
   rm -v conf/nodes-$port.conf
 }
@@ -42,11 +45,14 @@ shutdown_redis() {
 # remove replicas of master
 remove_replicas() {
   node=$1
+  local port
+  echo "shutting down replicas for $1"
   while ./bin/redis-cli --cluster check 127.0.0.1:6001  | grep -b2 "replicates $node" > /dev/null; do
     replica=$(./bin/redis-cli --cluster check 127.0.0.1:6001  | grep -b2 "replicates $node" | head -n1 | cut -f2 -d':' | cut -f2 -d' ')
     port=$(./bin/redis-cli --cluster check 127.0.0.1:6001  | grep -b2 "replicates $node" | head -n1 | cut -f3 -d':')
     echo "removing replica $replica"
     /bin/redis-cli --cluster del-node 127.0.0.01:6001 $replica
+    echo "shutdown replica: shutdown_redis $port"
     shutdown_redis $port
   done
 }
