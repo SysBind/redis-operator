@@ -28,5 +28,3 @@ do
 done
 
 ./bin/redis-cli --cluster create $addresses --cluster-replicas $REPLICAS --cluster-yes
-sleep $((SIZE*REPLICAS*2))s
-./bin/redis-cli --cluster check 127.0.0.1:6001

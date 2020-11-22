@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KEYS_COUNT=10000
+KEYS_COUNT=1000
 source config
 
 for ((i=1; i<=$KEYS_COUNT; i++));

@@ -1,15 +1,16 @@
 #!/bin/bash
 
 source config
+source common.sh
 
-masters=$(./bin/redis-cli --cluster check 127.0.0.1:6001 | grep "^M: " | wc -l)
-count=$((masters*(REPLICAS+1)))
-
-for ((i=1; i<=$count; i++));
+while ./bin/redis-cli --cluster check 127.0.0.1:6001 | grep "^M: " > /dev/null;
 do
-  echo ">>> Shutting Down Redis $i.."
-  ./bin/redis-cli -p $((6000+i)) "SHUTDOWN"
+  node=$(./bin/redis-cli --cluster check 127.0.0.1:6001 | grep "^M: " | tail -n1 | cut -f2 -d":" | cut -f2 -d' ')
+  port=$(./bin/redis-cli --cluster check 127.0.0.1:6001 | grep "^M: " | tail -n1 | cut -f3 -d":")
+  remove_replicas $node
+  shutdown_redis $port
 done
+
 
 rm -rfv ./conf ./logs
 rm -v dump.rdb
