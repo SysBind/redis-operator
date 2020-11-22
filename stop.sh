@@ -12,3 +12,4 @@ do
 done
 
 rm -rfv ./conf ./logs
+rm -v dump.rdb

@@ -1,3 +1,4 @@
+
 # configure_redis port
 ## configure single instance
 configure_redis() {
@@ -11,6 +12,12 @@ appendonly no
 save ""
 EOF
   echo "generated redis-$port.conf"
+}
+
+
+error() {
+  echo $1
+  exit 2
 }
 
 # run_redis port

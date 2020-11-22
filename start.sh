@@ -16,6 +16,8 @@ get_redis() {
 
 [ -f bin/redis-server ] || get_redis
 
+[ -d ./conf ] && error "cluster already started, please ./stop.sh first"
+
 addresses=""
 for ((i=1; i<=$(( SIZE*(REPLICAS+1) )); i++));
 do
@@ -25,7 +27,6 @@ do
   addresses=$addresses" 127.0.0.1:$port"
 done
 
-./bin/redis-cli --cluster create $addresses --cluster-replicas $REPLICAS
+./bin/redis-cli --cluster create $addresses --cluster-replicas $REPLICAS --cluster-yes
 sleep $((SIZE*REPLICAS*2))s
 ./bin/redis-cli --cluster check 127.0.0.1:6001
-./bin/redis-cli --cluster rebalance 127.0.0.1:6001 --cluster-use-empty-masters
