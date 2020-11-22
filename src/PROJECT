@@ -1,0 +1,7 @@
+domain: sysbind.co.il
+repo: gitlab.sysbind.biz/SRE/redis-operator
+resources:
+- group: redis
+  kind: Redis
+  version: v1
+version: "2"
