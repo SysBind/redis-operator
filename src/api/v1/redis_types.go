@@ -28,8 +28,8 @@ type RedisSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Redis. Edit Redis_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Masters *int32 `json:"Masters,omitempty"`
+	Replicas *int32 `json:"Replicas,omitempty"`
 }
 
 // RedisStatus defines the observed state of Redis
