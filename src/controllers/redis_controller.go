@@ -36,18 +36,33 @@ type RedisReconciler struct {
 
 // +kubebuilder:rbac:groups=redis.sysbind.co.il,resources=redis,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=redis.sysbind.co.il,resources=redis/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=apps,resources=statefulsets/status,verbs=get
 
 func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("redis", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("redis", req.NamespacedName)
 
-	// your logic here
+	var redis redisv1.Redis
+	if err := r.Get(ctx, req.NamespacedName, &redis); err != nil {
+		log.Error(err, "unable to fetch Redis")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
+	log.Info("Reconciling ", "redis", req.NamespacedName.Name)
+	log.Info("Structure", "masters", redis.Spec.Masters, "replicas", redis.Spec.Replicas)
+	if redis.Spec.Replicas == nil || redis.Spec.Masters == nil {
+		log.Info("Still no spec, re-queueing..")
+		return ctrl.Result{Requeue: true}, nil
+	}
 	return ctrl.Result{}, nil
 }
 
 func (r *RedisReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&redisv1.Redis{}).
+		Owns()
 		Complete(r)
 }

@@ -28,8 +28,8 @@ type RedisSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Masters *int32 `json:"Masters,omitempty"`
-	Replicas *int32 `json:"Replicas,omitempty"`
+	Masters  *int32 `json:"masters,omitempty"`
+	Replicas *int32 `json:"replicas,omitempty"`
 }
 
 // RedisStatus defines the observed state of Redis

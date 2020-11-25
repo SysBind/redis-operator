@@ -1,7 +1,7 @@
 apiVersion: redis.sysbind.co.il/v1
 kind: Redis
 metadata:
-  name: redis-sample
+  name: redis-cache-2
 spec:
-  # Add fields here
-  foo: bar
+  masters: 3
+  replicas: 1
