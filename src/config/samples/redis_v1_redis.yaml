@@ -1,7 +1,7 @@
 apiVersion: redis.sysbind.co.il/v1
 kind: Redis
 metadata:
-  name: redis-cache-2
+  name: redis-cache-d
 spec:
   masters: 3
   replicas: 1

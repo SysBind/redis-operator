@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/go-logr/logr"
@@ -52,6 +53,23 @@ func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	constructStatefulSetForRedis := func(redis *redisv1.Redis) (*kapps.StatefulSet, error) {
 		spec := kapps.StatefulSetSpec{}
 		//spec.Selector = metav1.LabelSelector{}
+		spec.Selector = &metav1.LabelSelector{MatchLabels: map[string]string{"bob": "5"}}
+		spec.Template.Labels = map[string]string{"bob": "5"}
+		RedisContainer := corev1.Container{Name: "redis", Image: "redis:6.0.9",
+			Ports: []corev1.ContainerPort{{
+				Name:          "redis",
+				HostPort:      6379,
+				ContainerPort: 6379,
+				Protocol:      "TCP",
+			},
+				{
+					Name:          "redis",
+					HostPort:      16379,
+					ContainerPort: 16379,
+					Protocol:      "TCP",
+				}},
+		}
+		spec.Template.Spec.Containers = append(spec.Template.Spec.Containers, RedisContainer)
 		sts := &kapps.StatefulSet{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels:      make(map[string]string),
@@ -80,6 +98,7 @@ func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	log.Info("Reconciling ", "redis", req.NamespacedName.Name)
 	log.Info("Structure", "masters", redis.Spec.Masters, "replicas", redis.Spec.Replicas)
+	log.Info("Searching for existing Statefulset objects for", "Redis", req.Name)
 
 	var childSTS kapps.StatefulSetList
 	if err := r.List(ctx, &childSTS, client.InNamespace(req.Namespace), client.MatchingFields{stsOwnerKey: req.Name}); err != nil {
@@ -87,10 +106,13 @@ func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	// Check if we already have StatefulSet for this Redis
 	for i, sts := range childSTS.Items {
-		log.Info("found statefulset", "idx", i, "sts", sts)
+		log.Info("found statefulset", "idx", i, "name", sts.Name)
+		return ctrl.Result{}, nil
 	}
 
+	// New Redis - Create Statefulset
 	if newsts, err := constructStatefulSetForRedis(&redis); err != nil {
 		log.Error(err, "unable to construct statefulset for redis")
 		return ctrl.Result{}, err
@@ -101,8 +123,6 @@ func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		log.Info("Created Statefulset for Redis")
 	}
-
-	// r.Create()
 
 	return ctrl.Result{}, nil
 }
