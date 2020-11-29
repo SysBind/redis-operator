@@ -4,6 +4,10 @@ type bootingState struct {
 	cluster *Cluster
 }
 
+func (state bootingState) String() string {
+	return "BOOTING"
+}
+
 func (state bootingState) boot() error {
 	return nil
 }

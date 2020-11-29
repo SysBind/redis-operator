@@ -44,9 +44,19 @@ func NewCluster(spec redisv1.Redis, client client.Client, scheme *runtime.Scheme
 	cluster.creating = creatingState{cluster: cluster}
 	cluster.stable = stableState{cluster: cluster}
 	cluster.destroying = destroyingState{cluster: cluster}
-	cluster.currentState = cluster.new
+	cluster.setState(cluster.new)
 
 	return cluster
+}
+
+func (c *Cluster) setState(state state) {
+	if c.currentState != nil {
+		c.logger.Info("Redis Cluster setState ", "prev", c.currentState)
+	} else {
+		c.logger.Info("Current state is NIL")
+	}
+	c.logger.Info("Redis Cluster setState ", "new", state)
+	c.currentState = state
 }
 
 func (c *Cluster) Boot() error {

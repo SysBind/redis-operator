@@ -14,6 +14,10 @@ type newState struct {
 	cluster *Cluster
 }
 
+func (state newState) String() string {
+	return "NEW"
+}
+
 func constructStatefulSetForRedis(redis *redisv1.Redis, scheme *runtime.Scheme) (*kapps.StatefulSet, error) {
 	spec := kapps.StatefulSetSpec{}
 	//spec.Selector = metav1.LabelSelector{}
@@ -107,6 +111,7 @@ func (state newState) boot() error {
 		}
 		log.Info("Created Headless Service for Redis")
 	}
+	state.cluster.setState(state.cluster.booting)
 	return nil
 }
 
