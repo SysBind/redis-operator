@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -53,23 +54,34 @@ func (r *RedisReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	constructStatefulSetForRedis := func(redis *redisv1.Redis) (*kapps.StatefulSet, error) {
 		spec := kapps.StatefulSetSpec{}
 		//spec.Selector = metav1.LabelSelector{}
-		spec.Selector = &metav1.LabelSelector{MatchLabels: map[string]string{"bob": "5"}}
-		spec.Template.Labels = map[string]string{"bob": "5"}
-		RedisContainer := corev1.Container{Name: "redis", Image: "redis:6.0.9",
-			Ports: []corev1.ContainerPort{{
-				Name:          "redis",
-				HostPort:      6379,
-				ContainerPort: 6379,
-				Protocol:      "TCP",
-			},
-				{
-					Name:          "redis",
-					HostPort:      16379,
-					ContainerPort: 16379,
+		spec.Selector = &metav1.LabelSelector{MatchLabels: map[string]string{"redis": redis.Name}}
+		spec.Template.Labels = map[string]string{"redis": redis.Name}
+		spec.Replicas = redis.Spec.Masters
+
+		// Configuring each POD with same ports for the containers will cause
+		// Anti-Affinity to happen automatically
+		var i int32
+		for i = 0; i <= (*redis.Spec.Replicas); i++ {
+			port := 6379 + i
+			cluster_port := 16379 + i
+			RedisContainer := corev1.Container{Name: fmt.Sprintf("redis-%d", i), Image: "redis:6.0.9",
+				Command: []string{"/usr/local/bin/redis-server", "--port", fmt.Sprintf("%d", port)},
+				Ports: []corev1.ContainerPort{{
+					Name:          fmt.Sprintf("redis-%d", i),
+					HostPort:      port,
+					ContainerPort: port,
 					Protocol:      "TCP",
-				}},
+				},
+					{
+						Name:          fmt.Sprintf("redis-cluster-%d", i),
+						HostPort:      cluster_port,
+						ContainerPort: cluster_port,
+						Protocol:      "TCP",
+					},
+				},
+			}
+			spec.Template.Spec.Containers = append(spec.Template.Spec.Containers, RedisContainer)
 		}
-		spec.Template.Spec.Containers = append(spec.Template.Spec.Containers, RedisContainer)
 		sts := &kapps.StatefulSet{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels:      make(map[string]string),
