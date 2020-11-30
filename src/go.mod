@@ -1,4 +1,4 @@
-module gitlab.sysbind.biz/SRE/redis-operator
+module gitlab.sysbind.biz/operators/redis-operator
 
 go 1.13
 

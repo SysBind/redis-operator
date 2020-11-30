@@ -18,12 +18,12 @@ package controllers
 
 import (
 	"context"
-	"gitlab.sysbind.biz/SRE/redis-operator/cluster"
+	"gitlab.sysbind.biz/operators/redis-operator/cluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/go-logr/logr"
-	redisv1 "gitlab.sysbind.biz/SRE/redis-operator/api/v1"
+	redisv1 "gitlab.sysbind.biz/operators/redis-operator/api/v1"
 	kapps "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"

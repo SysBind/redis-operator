@@ -3,7 +3,7 @@ package cluster
 import (
 	"context"
 	"github.com/go-logr/logr"
-	redisv1 "gitlab.sysbind.biz/SRE/redis-operator/api/v1"
+	redisv1 "gitlab.sysbind.biz/operators/redis-operator/api/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

@@ -26,8 +26,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	redisv1 "gitlab.sysbind.biz/SRE/redis-operator/api/v1"
-	"gitlab.sysbind.biz/SRE/redis-operator/controllers"
+	redisv1 "gitlab.sysbind.biz/operators/redis-operator/api/v1"
+	"gitlab.sysbind.biz/operators/redis-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

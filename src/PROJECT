@@ -1,5 +1,5 @@
 domain: sysbind.co.il
-repo: gitlab.sysbind.biz/SRE/redis-operator
+repo: gitlab.sysbind.biz/operators/redis-operator
 resources:
 - group: redis
   kind: Redis

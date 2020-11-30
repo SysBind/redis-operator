@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	redisv1 "gitlab.sysbind.biz/SRE/redis-operator/api/v1"
+	redisv1 "gitlab.sysbind.biz/operators/redis-operator/api/v1"
 	// +kubebuilder:scaffold:imports
 )
 
